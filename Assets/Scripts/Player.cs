@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     //Config
     [SerializeField] float runSpeed = 5f;
     [SerializeField] float jumpSpeed = 5f;
+    [SerializeField] float climbSpeed = 5f;
 
     //State
     bool isAlive = true;
@@ -15,6 +16,7 @@ public class Player : MonoBehaviour
     //cached component references
     Rigidbody2D myRigidBody;
     Animator myAnimator;
+    Collider2D myCollider2d;
 
     //messages, then methods
 
@@ -23,6 +25,7 @@ public class Player : MonoBehaviour
     {
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
+        myCollider2d = GetComponent<Collider2D>();
     }
 
     // Update is called once per frame
@@ -31,6 +34,7 @@ public class Player : MonoBehaviour
         Run();
         FlipSprite();
         Jump();
+        ClimbLadder();
     }
 
     private void Run()
@@ -45,8 +49,33 @@ public class Player : MonoBehaviour
         myAnimator.SetBool("running", PlayerHasHorizontalSpeed());
     }
 
+    private void ClimbLadder()
+    {
+        if (!myCollider2d.IsTouchingLayers(LayerMask.GetMask("Climbing")))
+        {
+            return;
+        }
+
+        float controlFlow = CrossPlatformInputManager.GetAxis("Vertical");
+
+        Vector2 climbVelocity = new Vector2(myRigidBody.velocity.x, controlFlow * climbSpeed);
+
+        myRigidBody.velocity = climbVelocity;
+
+        bool playerHasVerticalSpeed = Mathf.Abs(myRigidBody.velocity.y) > Mathf.Epsilon;
+
+        myAnimator.SetBool("climbing", playerHasVerticalSpeed);
+
+    }
+
     private void Jump()
     {
+
+        if(! myCollider2d.IsTouchingLayers(LayerMask.GetMask("Ground")))
+        {
+            return;
+        }
+
         if (CrossPlatformInputManager.GetButtonDown("Jump")) //from project settings -> input
         {
             Vector2 jumpVelocityToAdd = new Vector2(0f, jumpSpeed);
