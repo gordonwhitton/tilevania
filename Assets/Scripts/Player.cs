@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     Rigidbody2D myRigidBody;
     Animator myAnimator;
     Collider2D myCollider2d;
+    float gravityScaleAtStart;
 
     //messages, then methods
 
@@ -26,15 +27,16 @@ public class Player : MonoBehaviour
         myRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
         myCollider2d = GetComponent<Collider2D>();
+        gravityScaleAtStart = myRigidBody.gravityScale;
     }
 
     // Update is called once per frame
     void Update()
     {
         Run();
+        ClimbLadder();
         FlipSprite();
         Jump();
-        ClimbLadder();
     }
 
     private void Run()
@@ -53,6 +55,8 @@ public class Player : MonoBehaviour
     {
         if (!myCollider2d.IsTouchingLayers(LayerMask.GetMask("Climbing")))
         {
+            myAnimator.SetBool("climbing", false);
+            myRigidBody.gravityScale = gravityScaleAtStart;
             return;
         }
 
@@ -61,6 +65,7 @@ public class Player : MonoBehaviour
         Vector2 climbVelocity = new Vector2(myRigidBody.velocity.x, controlFlow * climbSpeed);
 
         myRigidBody.velocity = climbVelocity;
+        myRigidBody.gravityScale = 0; //set gravity to 0
 
         bool playerHasVerticalSpeed = Mathf.Abs(myRigidBody.velocity.y) > Mathf.Epsilon;
 
