@@ -3,10 +3,36 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using UnityEngine.UI;
 public class GameSession : MonoBehaviour
 {
     [SerializeField] int playerLives = 3;
+    [SerializeField] int score = 0;
+
+    [SerializeField] Text livesText;
+    [SerializeField] Text scoreText;
+
+    private void Start()
+    {
+        UpdateLivesText();
+        UpdateScoreText();
+    }
+
+    private void UpdateScoreText()
+    {
+        scoreText.text = score.ToString();
+    }
+
+    public void AddToScore(int points)
+    {
+        score += points;
+        UpdateScoreText();
+    }
+
+    private void UpdateLivesText()
+    {
+        livesText.text = playerLives.ToString();
+    }
 
     //singleton pattern
     private void Awake()
@@ -44,6 +70,7 @@ public class GameSession : MonoBehaviour
     private void TakeLife()
     {
         playerLives--;
+        UpdateLivesText();
         var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentSceneIndex);
     }
